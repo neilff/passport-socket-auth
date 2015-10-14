@@ -2,6 +2,8 @@
 
 > Demonstration of using [passport-google-oauth](https://github.com/jaredhanson/passport-google-oauth) along with [passport.socketio](https://github.com/jfromaniello/passport.socketio) to create a Google Oauth2 enabled Socket.io server
 
+[Example on Heroku](http://passport-socket-auth.herokuapp.com/)
+
 ## Installation
 
 #### Step 0

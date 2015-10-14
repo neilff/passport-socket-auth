@@ -1,10 +1,3 @@
-// Configuration constants
-import {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_CALLBACK_URL
-} from '../keys';
-
 import { isDefined } from './utils';
 import ensureAuthenticated from './middleware/ensureAuthenticated';
 import express from 'express';
@@ -19,21 +12,30 @@ import socketIo from 'socket.io';
 import passportSocketIo from 'passport.socketio';
 import http from 'http';
 import invariant from 'invariant';
+import { MemoryStore } from 'express-session';
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || require('../keys').GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || require('../keys').GOOGLE_CLIENT_SECRET;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || require('../keys').GOOGLE_CALLBACK_URL;
 
 invariant(
-  isDefined(process.env.GOOGLE_CLIENT_ID) || isDefined(GOOGLE_CLIENT_ID),
-  'GOOGLE_CLIENT_ID is not set, add it in keys.js or as an environment variable.'
+  isDefined(GOOGLE_CLIENT_ID),
+  'GOOGLE_CLIENT_ID is not set, add it as an environment variable.'
 );
 
 invariant(
-  isDefined(process.env.GOOGLE_CLIENT_SECRET) || isDefined(GOOGLE_CLIENT_SECRET),
-  'GOOGLE_CLIENT_SECRET is not set, add it in keys.js or as an environment variable.'
+  isDefined(GOOGLE_CLIENT_SECRET),
+  'GOOGLE_CLIENT_SECRET is not set, add it as an environment variable.'
 );
 
 invariant(
-  isDefined(process.env.GOOGLE_CALLBACK_URL) || isDefined(GOOGLE_CALLBACK_URL),
-  'GOOGLE_CALLBACK_URL is not set, add it in keys.js or as an environment variable.'
+  isDefined(GOOGLE_CALLBACK_URL),
+  'GOOGLE_CALLBACK_URL is not set, add it as an environment variable.'
 );
+
+console.log('GOOGLE_CLIENT_ID :: ', GOOGLE_CLIENT_ID);
+console.log('GOOGLE_CLIENT_SECRET :: ', GOOGLE_CLIENT_SECRET);
+console.log('GOOGLE_CALLBACK_URL :: ', GOOGLE_CALLBACK_URL);
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -56,7 +58,7 @@ passport.deserializeUser(function(obj, done) {
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
 passport.use(new OAuth2Strategy({
-    clientID: process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID,
+    clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: GOOGLE_CALLBACK_URL
   },
@@ -76,8 +78,8 @@ passport.use(new OAuth2Strategy({
 const app = express();
 
 const RedisStore = connectRedis(session);
-const sessionStore = new RedisStore();
-// const sessionStore = new MemoryStore();
+// const sessionStore = new RedisStore();
+const sessionStore = new MemoryStore();
 
 const sessionOpts = {
   key: 'connect.sid',
@@ -104,8 +106,6 @@ app.route('/')
 
 app.route('/account')
   .get(ensureAuthenticated, function(req, res) {
-    console.log('app.route sees :: ', req.session);
-    req.session.save();
     res.render('account', { user: req.user });
   });
 
@@ -135,8 +135,6 @@ app.route('/auth/google')
 app.route('/auth/google/callback')
   .get(passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
-    req.session.save();
-    console.log(sessionStore);
     res.redirect('/');
   });
 

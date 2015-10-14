@@ -21,7 +21,7 @@
     <% if (user) { %>
       <script src="/socket.io/socket.io.js"></script>
       <script>
-        var socket = io.connect('http://127.0.0.1:5001');
+        var socket = io.connect('http://passport-socket-auth.herokuapp.com');
         socket.on('connected', function (data) {
           alert('Connected as ' + data.username);
         });
