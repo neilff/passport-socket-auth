@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Passport-Google (OAuth 2.0) Example</title>
+  </head>
+  <body>
+    <% if (!user) { %>
+      <p>
+      <a href="/">Home</a> |
+      <a href="/login">Log In</a>
+      </p>
+    <% } else { %>
+      <p>
+      <a href="/">Home</a> |
+      <a href="/account">Account</a> |
+      <a href="/logout">Log Out</a>
+      </p>
+    <% } %>
+    <%- body %>
+
+    <% if (user) { %>
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        var socket = io.connect('http://127.0.0.1:5001');
+        socket.on('connected', function (data) {
+          alert('Connected as ' + data.username);
+        });
+      </script>
+    <% } %>
+  </body>
+</html>
